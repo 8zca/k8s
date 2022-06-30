@@ -1,0 +1,59 @@
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: NodePort
+  sessionAffinity: ClientIP # 同じIPは同じPodへ流す
+  ports:
+    nodePort: 30000
+    port: 8080
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: my-app
+
+---
+# StatefulSet
+# それぞれのPodがステートを持つ.Pod内のコンテナが終了して代替えが起動する際に同じIPが割り当てられる
+# このとき同じPersistentVolumeClaimが割り当てられる
+apiVersion: app/v1
+kind: StatefulSet
+metadata:
+  name: my-stateful
+spec:
+  serviceName: my-service
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-container
+          image: foo/bar # 適当なイメージ
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: my-volume-storage # アプリ用の何か
+              mountPath: /var/data
+            - name: my-volume-session # $_SESSION情報の保存先. Podごとに1つ作られる
+              mountPath: /var/lib/php/sessions
+      volumes:
+        - name: my-volume-storage
+          persistentVolumeClaim:
+            claimName: my-volume-claim
+  volumeClaimTemplates:
+    - metadata:
+        name: my-volume-session
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Mi
+        storagecClassName: standard
