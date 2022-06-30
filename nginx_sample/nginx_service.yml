@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: NodePort
+  ports:
+    # port=サービス, targetPort=Pod, nodePort=ワーカーノード
+    - port: 8080
+      protocol: TCP
+      targetPort: 80
+      nodePort: 30000
+  
+  # 先にnginx_deployを作成しておくこと
+  # これで app: my-appのラベルを持つPodが配下に入る
+  selector:
+    app: my-app

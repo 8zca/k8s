@@ -1,0 +1,14 @@
+# api-resourcesのAPIVERSION
+apiVersion: v1
+# api-resourcesのKIND
+kind: Pod 
+metadata:
+  name: my-pod
+# 詳細
+spec:
+  containers:
+    - name: my-container
+      image: nginx:latest
+      ports:
+        # EXPOSEのようなもの
+        - containerPort: 80

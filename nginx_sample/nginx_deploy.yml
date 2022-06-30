@@ -1,0 +1,25 @@
+# api-resourcesのAPIVERSION
+apiVersion: apps/v1
+# api-resourcesのKIND
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  # ReplicaSet 同じ構成のPodを3つ
+  replicas: 3
+  # appキーにmy-appをもつラベルと合致しているものを対象とする
+  # => templateのmetadata.labelsが対象
+  selector:
+    matchLabels:
+      app: my-app
+  # Podのテンプレート. specはnginx_podと同じ
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-container
+          image: nginx:latest
+          ports:
+            - containerPort: 80
